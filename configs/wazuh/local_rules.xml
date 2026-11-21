@@ -1,0 +1,61 @@
+<!-- ===== LAB SOC : regles pfSense + Suricata ===== -->
+<group name="lab,suricata,ids,">
+  <rule id="100200" level="3">
+    <decoded_as>lab-suricata-syslog</decoded_as>
+    <description>Suricata (pfSense) : $(extra_data)</description>
+  </rule>
+  <rule id="100201" level="10">
+    <if_sid>100200</if_sid>
+    <field name="priority">^1$</field>
+    <description>Suricata priorite 1 : $(extra_data) ($(srcip) -> $(dstip):$(dstport))</description>
+    <mitre><id>T1190</id></mitre>
+  </rule>
+  <rule id="100202" level="7">
+    <if_sid>100200</if_sid>
+    <field name="priority">^2$</field>
+    <description>Suricata priorite 2 : $(extra_data) ($(srcip) -> $(dstip):$(dstport))</description>
+    <mitre><id>T1046</id></mitre>
+  </rule>
+  <rule id="100203" level="5">
+    <if_sid>100200</if_sid>
+    <field name="priority">^3$</field>
+    <description>Suricata priorite 3 : $(extra_data) ($(srcip) -> $(dstip))</description>
+    <mitre><id>T1018</id></mitre>
+  </rule>
+  <rule id="100210" level="12" frequency="4" timeframe="120">
+    <if_matched_group>suricata</if_matched_group>
+    <same_srcip />
+    <description>LAB : plusieurs alertes Suricata depuis $(srcip) en 2 min - attaque en cours probable</description>
+  </rule>
+</group>
+
+<group name="lab,pfsense,firewall,">
+  <rule id="100220" level="0">
+    <decoded_as>lab-pfsense-filterlog</decoded_as>
+    <description>pfSense filterlog</description>
+  </rule>
+  <rule id="100221" level="5">
+    <if_sid>100220</if_sid>
+    <action>block</action>
+    <description>pfSense a BLOQUE $(protocol) $(srcip) -> $(dstip):$(dstport) (interface $(interface))</description>
+    <group>firewall_drop,</group>
+  </rule>
+  <rule id="100222" level="3">
+    <if_sid>100220</if_sid>
+    <action>pass</action>
+    <field name="interface">^em2$</field>
+    <description>pfSense : trafic du segment attaquant autorise $(srcip) -> $(dstip):$(dstport)</description>
+  </rule>
+  <rule id="100223" level="10" frequency="5" timeframe="60">
+    <if_matched_sid>100221</if_matched_sid>
+    <same_srcip />
+    <description>LAB : $(srcip) se fait bloquer a repetition par pfSense (5+ en 1 min)</description>
+    <mitre><id>T1046</id></mitre>
+  </rule>
+  <rule id="100224" level="10" frequency="20" timeframe="30">
+    <if_matched_sid>100222</if_matched_sid>
+    <same_srcip />
+    <description>LAB : scan de ports probable depuis $(srcip) (20+ connexions en 30 s vers le LAN)</description>
+    <mitre><id>T1046</id></mitre>
+  </rule>
+</group>

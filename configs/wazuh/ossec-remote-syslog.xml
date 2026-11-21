@@ -1,0 +1,9 @@
+<!-- Added to /var/ossec/etc/ossec.conf (inside <ossec_config>) on the Wazuh manager.
+     Accepts syslog only from pfSense's admin interface. -->
+<remote>
+  <connection>syslog</connection>
+  <port>514</port>
+  <protocol>udp</protocol>
+  <allowed-ips>192.168.56.2</allowed-ips>
+  <local_ip>192.168.56.103</local_ip>
+</remote>

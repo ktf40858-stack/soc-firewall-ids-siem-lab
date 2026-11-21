@@ -1,0 +1,20 @@
+<!-- ===== LAB SOC : logs envoyes par pfSense (RFC3164 sans nom d'hote) ===== -->
+<!-- Le pre-decodeur Wazuh prend "suricata[pid]:" / "filterlog[pid]:" pour le nom d'hote -->
+
+<decoder name="lab-suricata-syslog">
+  <prematch type="pcre2">\[\d+:\d+:\d+\] .+ \[Classification: </prematch>
+</decoder>
+<decoder name="lab-suricata-syslog-fields">
+  <parent>lab-suricata-syslog</parent>
+  <regex type="pcre2">\[(\d+):(\d+):\d+\] (.+?) \[Classification: (.+?)\] \[Priority: (\d)\] \{(\w+)\} ([\d.]+):?(\d*) -> ([\d.]+):?(\d*)</regex>
+  <order>gid, id, extra_data, classification, priority, protocol, srcip, srcport, dstip, dstport</order>
+</decoder>
+
+<decoder name="lab-pfsense-filterlog">
+  <prematch type="pcre2">\d*,[^,]*,[^,]*,\d+,\w+,match,(pass|block),</prematch>
+</decoder>
+<decoder name="lab-pfsense-filterlog-fields">
+  <parent>lab-pfsense-filterlog</parent>
+  <regex type="pcre2">\d*,[^,]*,[^,]*,(\d+),(\w+),match,(\w+),(\w+),4,[^,]*,[^,]*,\d+,\d+,\d+,\w*,\d+,(\w+),\d+,([\d.]+),([\d.]+),?(\d*),?(\d*)</regex>
+  <order>id, interface, action, direction, protocol, srcip, dstip, srcport, dstport</order>
+</decoder>

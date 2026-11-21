@@ -1,0 +1,17 @@
+# Never publish private notes, credentials, keys or VM images
+_PRIVE_NE_PAS_PUBLIER/
+**/_PRIVE_NE_PAS_PUBLIER/
+identifiants*.txt
+*credentials*
+*.key
+*.pem
+*_ecdsa
+*_ed25519
+*.pub
+*.ova
+*.iso
+*.vmdk
+*.vdi
+iso/
+vms/
+extpack/
